@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
 
-bin_PROGRAMS = test/first
-
-first_
+SUBDIRS = \
+		  test \
+		  #src
