@@ -16,7 +16,7 @@ if test "x$HAVE_IPP" = "xfalse"; then
 else
 	IPP_INCLUDES=-I$IPP_PREFIX/$ver/$IPP_CPU/include
     IPP_LDFLAGS=-L$IPP_PREFIX/$ver/$IPP_CPU/lib
-	IPP_LIBS=-lippacemerged$IPP_SUFFIX -lippacmerged$IPP_SUFFIX -lippsemerged$IPP_SUFFIX -lippsmerged$IPP_SUFFIX -lippcore$IPP_SUFFIX
+	IPP_LIBS="-lippacemerged$IPP_SUFFIX -lippacmerged$IPP_SUFFIX -lippsemerged$IPP_SUFFIX -lippsmerged$IPP_SUFFIX -lippcore$IPP_SUFFIX"
 fi
 AC_SUBST(IPP_INCLUDES)
 AC_SUBST(IPP_LDFLAGS)
