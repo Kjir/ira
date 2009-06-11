@@ -1,9 +1,15 @@
 .*.swp
 *.o
 config.log
+config.guess
+config.sub
 Makefile.in
 config.status
 aclocal.m4
 Makefile
 autom4te.cache
 configure
+extra/shave
+install-sh
+missing
+depcomp
