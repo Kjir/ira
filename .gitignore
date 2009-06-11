@@ -1,0 +1,7 @@
+config.log
+Makefile.in
+config.status
+aclocal.m4
+Makefile
+autom4te.cache
+configure
