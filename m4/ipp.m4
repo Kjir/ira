@@ -7,17 +7,17 @@ AC_DEFUN([AG_CHECK_IPP],
   AC_MSG_CHECKING([for Intel Performance Primitives library])
 
   AC_ARG_WITH(ipp,
-      AC_HELP_STRING([--with-ipp],
+      AS_HELP_STRING([--with-ipp],
           [Turn on/off use of Intel Programming Primitives (default=yes)]),
           [if test "x$withval" = "xno"; then test_ipp=false; fi])
 
   AC_ARG_WITH(ipp-path,
-     AC_HELP_STRING([--with-ipp-path],
+     AS_HELP_STRING([--with-ipp-path],
          [manually set location of IPP files, point to the directory just beneath the directory using the IPP version number]),
          [export IPP_PATH="${withval}"])
 
   AC_ARG_WITH(ipp-arch,
-    AC_HELP_STRING([--with-ipp-arch],
+    AS_HELP_STRING([--with-ipp-arch],
          [to include only one ipp implementation/architecture, valid values are: 0=all,1=px,2=a6,3=w7,4=t7,5=v8,6=p8,7=mx,8=m7,9=u8,10=y8,11=s8(lp32)]),
     [IPP_ARCH="${withval}"],
     [IPP_ARCH="0"])
