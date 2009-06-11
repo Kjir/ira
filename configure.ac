@@ -1,13 +1,13 @@
-AC_PREREQ([2.59])
-AC_INIT([dspstream], [0.1])
+AC_PREREQ(2.63)
+AC_INIT([dspstream],[0.1])
 AC_CONFIG_SRCDIR([src/main.cc])
 AM_INIT_AUTOMAKE([-Wall])
 
 AC_CANONICAL_HOST
 
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])
 AC_PROG_CXX
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 AG_CHECK_IPP
 
