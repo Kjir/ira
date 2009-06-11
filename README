@@ -1,1 +1,5 @@
-Readme file
+Compiling
+
+To compile the project you need autoconf and automake. To generate the necessary files run
+autoreconf -i
+Then you can run ./configure and make to compile the project
