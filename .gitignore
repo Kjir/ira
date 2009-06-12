@@ -14,3 +14,7 @@ install-sh
 missing
 depcomp
 .deps/
+test/siggen
+test/lambda
+test/subject
+test/fft
