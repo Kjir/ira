@@ -18,3 +18,4 @@ test/siggen
 test/lambda
 test/subject
 test/fft
+test/fftinv
