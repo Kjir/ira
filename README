@@ -1,3 +1,7 @@
+Requirements
+
+This project requires Intel Integrated Performance Primitives and Boost version 1.35.0 or greater
+
 Compiling
 
 To compile the project you need autoconf and automake. To generate the necessary files run
