@@ -8,7 +8,10 @@ AC_CANONICAL_HOST
 AC_SEARCH_LIBS([strerror],[cposix])
 AC_PROG_CXX
 AC_LANG([C++])
+
+#Check for Boost
 AX_BOOST_BASE([1.35.0])
+AX_BOOST_REGEX
 
 AG_CHECK_IPP
 
