@@ -4,7 +4,7 @@
 #define SIGLEN 256
 
 int main( void ) {
-    Ipp16s signal[SIGLEN] = { -1 };
+    Ipp16s signal[SIGLEN];
     IppStatus status;
     float phase = 1.4;
     ippStaticInit();
