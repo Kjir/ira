@@ -34,7 +34,7 @@ int main( void ) {
         std::cerr << "Not enough memory\n";
         return -3;
     }
-    status = ippsFFTFwd_RToPack_16s_ISfs(signal, FFTSpec, 1, buffer);
+    status = ippsFFTFwd_RToPack_16s_ISfs(signal, FFTSpec, 3, buffer);
     if( status != ippStsNoErr ) {
         std::cerr << "IPP Error in FFTFwd: " << ippGetStatusString(status) << "\n";
         return -4;
