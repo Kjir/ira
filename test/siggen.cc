@@ -12,6 +12,10 @@ int main( void ) {
     if(status != ippStsNoErr) {
         std::cerr << "IPP Error in Tone Direct: " << ippGetStatusString(status) << "\n";
     }
+    std::cerr << "Printing first 10 elements: \n";
+    for(int i = 0; i < 10; i++) {
+        std::cerr << i << ": " << signal[i] << "\n";
+    }
     std::cout.write((char *)signal, sizeof signal);
     return 0;
 }
