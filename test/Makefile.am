@@ -1,9 +1,14 @@
-bin_PROGRAMS = fft siggen lambda subject
+bin_PROGRAMS = fft siggen lambda subject fftinv
 
 fft_SOURCES = fft.cc
 fft_CPPFLAGS=$(IPP_INCLUDES)
 fft_LDFLAGS=$(IPP_LDFLAGS)
 fft_LDADD = $(IPP_LIBS)
+
+fftinv_SOURCES = fftinv.cc
+fftinv_CPPFLAGS=$(IPP_INCLUDES)
+fftinv_LDFLAGS=$(IPP_LDFLAGS)
+fftinv_LDADD = $(IPP_LIBS)
 
 siggen_SOURCES = siggen.cc
 siggen_CPPFLAGS=$(IPP_INCLUDES)
@@ -17,5 +22,3 @@ subject_SOURCES = subject.cc
 subject_CPPFLAGS = $(BOOST_CPPFLAGS)
 subject_LDFLAGS = $(BOOST_LDFLAGS)
 subject_LDADD = $(BOOST_REGEX_LIB)
-
-EXTRA_DIST=fft.cc
