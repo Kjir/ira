@@ -13,7 +13,7 @@ fftinv_LDADD = $(IPP_LIBS)
 siggen_SOURCES = siggen.cc
 siggen_CPPFLAGS=$(IPP_INCLUDES)
 siggen_LDFLAGS=$(IPP_LDFLAGS)
-siggen_LDADD = $(IPP_LIBS)
+siggen_LDADD = $(IPP_LIBS) $(BOOST_PROGRAM_OPTIONS_LIB)
 
 lambda_SOURCES = lambda.cc
 lambda_CPPFLAGS = $(BOOST_CPPFLAGS)
