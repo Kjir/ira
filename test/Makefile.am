@@ -3,7 +3,7 @@ bin_PROGRAMS = fft siggen lambda subject fftinv
 fft_SOURCES = fft.cc
 fft_CPPFLAGS=$(IPP_INCLUDES)
 fft_LDFLAGS=$(IPP_LDFLAGS)
-fft_LDADD = $(IPP_LIBS)
+fft_LDADD = $(IPP_LIBS) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_FILESYSTEM_LIB)
 
 fftinv_SOURCES = fftinv.cc
 fftinv_CPPFLAGS=$(IPP_INCLUDES)
