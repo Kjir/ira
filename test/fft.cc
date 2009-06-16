@@ -29,6 +29,7 @@ int main( void ) {
         std::cerr << "IPP Error in FFTGetBufSize: " << ippGetStatusString(status) << "\n";
         return -2;
     }
+    std::cerr << "Buffer size is: " << bufsize << '\n';
     buffer = ippsMalloc_8u(bufsize);
     if( buffer == NULL ) {
         std::cerr << "Not enough memory\n";
