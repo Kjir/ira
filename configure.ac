@@ -1,4 +1,4 @@
-AC_PREREQ(2.63)
+AC_PREREQ(2.61)
 AC_INIT([dspstream],[0.1])
 AC_CONFIG_SRCDIR([src/main.cc])
 AM_INIT_AUTOMAKE([-Wall])
@@ -10,7 +10,7 @@ AC_PROG_CXX
 AC_LANG([C++])
 
 #Check for Boost
-AX_BOOST_BASE([1.35.0])
+AX_BOOST_BASE([1.31.0])
 AX_BOOST_REGEX
 AX_BOOST_PROGRAM_OPTIONS
 
@@ -27,7 +27,7 @@ AC_SUBST(IPP_INCLUDES)
 AC_SUBST(IPP_LDFLAGS)
 AC_SUBST(IPP_LIBS)
 
-SHAVE_INIT(extra, enable)
+SHAVE_INIT(extra, disable)
 
 AC_CONFIG_FILES([extra/shave Makefile test/Makefile])
 
