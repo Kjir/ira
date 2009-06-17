@@ -20,9 +20,10 @@ int main( int argc, char **argv ) {
         ("help", "Print this help message")
         ("fast", "Use fast algorithm instead of accurate one")
         ("order,o", po::value<int>(&order)->default_value(8), "Order of the signal. The length of the signal is 2^order")
-        ("order,o", po::value<int>(&scaling)->default_value(0), "Scaling value. The output will be multiplied by 2^-scaling")
+        ("scaling,t", po::value<int>(&scaling)->default_value(0), "Scaling value. The output will be multiplied by 2^-scaling")
         ("input,i", po::value< std::string >(), "Input file where to get the signal")
         ("save,s", po::value< std::string >(), "File where to save the signal")
+        ("real", "Convert the complex numbers into a real rappresentation")
         ;
     po::store(po::command_line_parser(argc, argv).options(desc).run(), var_map);
     po::notify(var_map);
@@ -85,6 +86,35 @@ int main( int argc, char **argv ) {
     FFTSpec = NULL;
     ippsFree( buffer );
     buffer = NULL;
+
+    if( var_map.count("real") ) {
+	    Ipp16sc *vc;
+	    vc = ippsMalloc_16sc(siglen);
+	    status = ippsConjPack_16sc(signal, vc, siglen*3);
+	    if( status != ippStsNoErr ) {
+		std::cerr << "IPP Error in ConjPack: " << ippGetStatusString(status) << "\n";
+		return -6;
+	    }
+	    for( int i = 0; i < siglen; i++ ) {
+		    Ipp32f pr, pi, tr, ti;
+		    tr = vc[i].re;
+		    ti = vc[i].im;
+		    status = ippsPowx_32f_A11(&tr, (Ipp32f)2, &pr, 1);
+		    if( status != ippStsNoErr ) {
+			std::cerr << "IPP Error in Powx: " << ippGetStatusString(status) << "\n";
+			return -5;
+		    }
+		    status = ippsPowx_32f_A11(&ti, (Ipp32f)2, &pi, 1);
+		    if( status != ippStsNoErr ) {
+			std::cerr << "IPP Error in Powx: " << ippGetStatusString(status) << "\n";
+			return -5;
+		    }
+		    signal[i] = pr + pi;
+		    std::cerr << "Component exp " << i << ' ' << signal[i] << std::endl;
+	    }
+	    ippsFree(vc);
+	    vc = NULL;
+    }
 
     std::cerr << "Printing first 10 elements after FFT: \n";
     for(int i = 0; i < 10 && i < siglen; i++) {
