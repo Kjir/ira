@@ -7,3 +7,13 @@ Compiling
 To compile the project you need autoconf and automake. To generate the necessary files run
 autoreconf -i
 Then you can run ./configure and make to compile the project
+
+Testing
+
+To test the functions, use the programs in test. Use the --help flag to have some descriptions about the flags available.
+To see a graphical representation of the output, use the extra/plot.py script.
+
+Sample usage
+
+./test/siggen -l 2048 | ./test/fft -o 8 -n 4 -a 1 -p 12 -t 1 -s fft.sig
+python extra/plot.py -i fft.sig -l 256
