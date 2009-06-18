@@ -13,17 +13,17 @@ int main( int argc, char **argv ) {
     IppStatus status;
     IppHintAlgorithm hint;
     IppsFFTSpec_R_16s *FFTSpec;
-    int bufsize, order, siglen, scaling;
+    int bufsize, order, siglen, scaling, pscaling = 13;
     Ipp8u *buffer;
 
     desc.add_options()
         ("help", "Print this help message")
         ("fast", "Use fast algorithm instead of accurate one")
-        ("order,o", po::value<int>(&order)->default_value(8), "Order of the signal. The length of the signal is 2^order")
+        ("order,o", po::value<int>(&order)->default_value(8), "Order of the transform. The input and output signal have a 2^order length")
         ("scaling,t", po::value<int>(&scaling)->default_value(0), "Scaling value. The output will be multiplied by 2^-scaling")
         ("input,i", po::value< std::string >(), "Input file where to get the signal")
         ("save,s", po::value< std::string >(), "File where to save the signal")
-        ("real", "Convert the complex numbers into a real rappresentation")
+        ("power-spectrum,p", po::value<int>(&pscaling), "Convert the complex numbers into the power spectrum with the defined scaling")
         ;
     po::store(po::command_line_parser(argc, argv).options(desc).run(), var_map);
     po::notify(var_map);
@@ -36,17 +36,17 @@ int main( int argc, char **argv ) {
     siglen = boost::numeric_cast<int>( pow(2, order) );
     signal = ippsMalloc_16s(siglen);
     if( signal == NULL ) {
-	    std::cerr << "Not enough memory" << std::endl;
-	    return -3;
+        std::cerr << "Not enough memory" << std::endl;
+        return -3;
     }
 
     if( var_map.count("input") ) {
-	    boost::filesystem::path fp( var_map["input"].as< std::string >() );
-	    boost::filesystem::ifstream file( fp );
-	    file.read( (char *)signal, sizeof signal );
-	    file.close();
+        boost::filesystem::path fp( var_map["input"].as< std::string >() );
+        boost::filesystem::ifstream file( fp );
+        file.read( (char *)signal, sizeof(*signal) * siglen );
+        file.close();
     } else {
-	    std::cin.read( (char *)signal, sizeof signal );
+        std::cin.read( (char *)signal, sizeof(*signal) * siglen );
     }
     std::cerr << "Printing first 10 elements: \n";
     for(int i = 0; i < 10; i++) {
@@ -87,33 +87,28 @@ int main( int argc, char **argv ) {
     ippsFree( buffer );
     buffer = NULL;
 
-    if( var_map.count("real") ) {
-	    Ipp16sc *vc;
-	    vc = ippsMalloc_16sc(siglen);
-	    status = ippsConjPack_16sc(signal, vc, siglen*3);
-	    if( status != ippStsNoErr ) {
-		std::cerr << "IPP Error in ConjPack: " << ippGetStatusString(status) << "\n";
-		return -6;
-	    }
-	    for( int i = 0; i < siglen; i++ ) {
-		    Ipp32f pr, pi, tr, ti;
-		    tr = vc[i].re;
-		    ti = vc[i].im;
-		    status = ippsPowx_32f_A11(&tr, (Ipp32f)2, &pr, 1);
-		    if( status != ippStsNoErr ) {
-			std::cerr << "IPP Error in Powx: " << ippGetStatusString(status) << "\n";
-			return -5;
-		    }
-		    status = ippsPowx_32f_A11(&ti, (Ipp32f)2, &pi, 1);
-		    if( status != ippStsNoErr ) {
-			std::cerr << "IPP Error in Powx: " << ippGetStatusString(status) << "\n";
-			return -5;
-		    }
-		    signal[i] = pr + pi;
-		    std::cerr << "Component exp " << i << ' ' << signal[i] << std::endl;
-	    }
-	    ippsFree(vc);
-	    vc = NULL;
+    if( var_map.count("power-spectrum") ) {
+        std::cerr << "Power" << std::endl;
+        Ipp16sc *vc, zero = {0, 0};
+        vc = ippsMalloc_16sc(siglen);
+        if( vc == NULL ) {
+            std::cerr << "Not enough memory\n";
+            return -3;
+        }
+        //Set the vector to zero
+        ippsSet_16sc(zero, vc, siglen);
+        status = ippsConjPack_16sc(signal, vc, siglen);
+        if( status != ippStsNoErr ) {
+            std::cerr << "IPP Error in ConjPack: " << ippGetStatusString(status) << "\n";
+            return -5;
+        }
+        status = ippsPowerSpectr_16sc_Sfs(vc, signal, siglen, pscaling);
+        if( status != ippStsNoErr ) {
+            std::cerr << "IPP Error in PowerSpectr: " << ippGetStatusString(status) << "\n";
+            return -6;
+        }
+        ippsFree(vc);
+        vc = NULL;
     }
 
     std::cerr << "Printing first 10 elements after FFT: \n";
@@ -121,12 +116,12 @@ int main( int argc, char **argv ) {
         std::cerr << i << ": " << signal[i] << "\n";
     }
     if( var_map.count("save") ) {
-	    boost::filesystem::path fp( var_map["save"].as< std::string >() );
-	    boost::filesystem::ofstream file( fp );
-	    file.write((char *)signal, sizeof(*signal) * siglen);
-	    file.close();
+        boost::filesystem::path fp( var_map["save"].as< std::string >() );
+        boost::filesystem::ofstream file( fp );
+        file.write((char *)signal, sizeof(*signal) * siglen);
+        file.close();
     } else {
-	    std::cout.write((char *)signal, sizeof(*signal) * siglen);
+        std::cout.write((char *)signal, sizeof(*signal) * siglen);
     }
     ippFree(signal);
     signal = NULL;
