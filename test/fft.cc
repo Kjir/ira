@@ -73,15 +73,13 @@ int main( int argc, char **argv ) {
         return -3;
     }
 
+    std::istream *in = &std::cin;
+    if( var_map.count("input") ) {
+        boost::filesystem::path fp( var_map["input"].as< std::string >() );
+        in = new boost::filesystem::ifstream(fp);
+    }
     for( int i = 0; i < nint; i++ ) {
-        if( var_map.count("input") ) {
-            boost::filesystem::path fp( var_map["input"].as< std::string >() );
-            boost::filesystem::ifstream file( fp );
-            file.read( (char *)signal, sizeof(*signal) * siglen );
-            file.close();
-        } else {
-            std::cin.read( (char *)signal, sizeof(*signal) * siglen );
-        }
+        (*in).read( (char *)signal, sizeof(*signal) * siglen );
         std::cerr << "Printing first 10 elements: \n";
         for(int i = 0; i < 10; i++) {
             std::cerr << i << ": " << signal[i] << "\n";
@@ -132,6 +130,9 @@ int main( int argc, char **argv ) {
         }
     }
 
+    if( in != &std::cin ) {
+        delete in;
+    }
     ippsFFTFree_R_16s(FFTSpec);
     FFTSpec = NULL;
     ippsFree( buffer );
