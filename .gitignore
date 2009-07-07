@@ -19,3 +19,4 @@ test/lambda
 test/subject
 test/fft
 test/fftinv
+test/time
