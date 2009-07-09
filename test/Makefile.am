@@ -1,4 +1,4 @@
-bin_PROGRAMS = fft siggen lambda subject fftinv time
+bin_PROGRAMS = fft siggen lambda subject fftinv time multi
 
 fft_SOURCES = fft.cc
 fft_CPPFLAGS=$(IPP_INCLUDES)
@@ -15,10 +15,15 @@ siggen_CPPFLAGS=$(IPP_INCLUDES) $(BOOST_CPPFLAGS)
 siggen_LDFLAGS=$(IPP_LDFLAGS) $(BOOST_LDFLAGS)
 siggen_LDADD = $(IPP_LIBS) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB)
 
-time_SOURCES = time.cc
+time_SOURCES = time.cc fft_noth.cc common.cc
 time_CPPFLAGS=$(IPP_INCLUDES)
 time_LDFLAGS=$(IPP_LDFLAGS)
 time_LDADD = $(IPP_LIBS) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB)
+
+multi_SOURCES = time.cc fft_th.cc common.cc
+multi_CPPFLAGS=$(IPP_INCLUDES)
+multi_LDFLAGS=$(IPP_LDFLAGS)
+multi_LDADD = $(IPP_LIBS) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_THREAD_LIB)
 
 lambda_SOURCES = lambda.cc
 lambda_CPPFLAGS = $(BOOST_CPPFLAGS)
