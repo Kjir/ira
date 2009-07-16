@@ -3,6 +3,13 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/thread.hpp>
 
+struct buffer {
+    boost::mutex mut;
+    boost::condition_variable dready;
+    bool data_ready = false;
+    Ipp16s *sig;
+} buf;
+
 Ipp16s *malloc_16s( int length ) {
     Ipp16s *mem = ippsMalloc_16s(length);
     if( mem == NULL ) {
@@ -11,24 +18,32 @@ Ipp16s *malloc_16s( int length ) {
     }
 }
 
-void some_func() {
-    std::cerr << "This is a new thread!" << std::endl;
+void fetch_data(std::istream in, int siglen, int numint) {
+    int i = 0;
+    while( (*in).good() && i < numint ) {
+        boost::unique_lock<boost::mutex> lock(buf.mut);
+        while( buf.data_ready ) {
+            buf.dready.wait(lock);
+        }
+
+        (*in).read( (char *)buf.sig, sizeof(*buf.sig) * siglen );
+        buf.cond.notify_one();
+    }
 }
 
 Ipp16s *computeFFT(boost::program_options::variables_map &var_map, std::istream *in, IppHintAlgorithm hint, int order, int nint, int scaling, int pscaling) {
-    Ipp16s *signal, *tmpdst, *result;
+    Ipp16s *tmpdst, *result;
     IppStatus status;
     Ipp8u *buffer;
     IppsFFTSpec_R_16s *FFTSpec;
     int bufsize;
 
-    boost::thread th(some_func);
-    th.join();
+    boost::thread th(fetch_data);
 
     int siglen = boost::numeric_cast<int>( pow(2, order) );
     result = malloc_16s(siglen);
     ippsSet_16s(0, result, siglen);
-    signal = malloc_16s(siglen);
+    buf.sig = malloc_16s(siglen);
     tmpdst = malloc_16s(siglen);
 
     status = ippsFFTInitAlloc_R_16s(&FFTSpec, order, IPP_FFT_NODIV_BY_ANY, hint);
@@ -48,9 +63,8 @@ Ipp16s *computeFFT(boost::program_options::variables_map &var_map, std::istream 
     }
 
     for( int i = 0; i < nint; i++ ) {
-        (*in).read( (char *)signal, sizeof(*signal) * siglen );
 
-        status = ippsFFTFwd_RToPack_16s_Sfs(signal, tmpdst, FFTSpec, scaling, buffer);
+        status = ippsFFTFwd_RToPack_16s_Sfs(buf.sig, tmpdst, FFTSpec, scaling, buffer);
         if( status != ippStsNoErr ) {
             std::cerr << "IPP Error in FFTFwd: " << ippGetStatusString(status) << "\n";
             exit(4);
@@ -91,9 +105,9 @@ Ipp16s *computeFFT(boost::program_options::variables_map &var_map, std::istream 
         }
     }
 
-    ippFree(signal);
+    ippFree(buf.sig);
     ippFree(tmpdst);
-    signal = NULL;
+    buf.sig = NULL;
     tmpdst = NULL;
     ippsFFTFree_R_16s(FFTSpec);
     FFTSpec = NULL;
