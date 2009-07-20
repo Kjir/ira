@@ -8,7 +8,7 @@ struct buffer {
     boost::condition_variable dready;
     bool data_ready = false;
     Ipp16s *sig;
-} buf;
+};
 
 Ipp16s *malloc_16s( int length ) {
     Ipp16s *mem = ippsMalloc_16s(length);
@@ -18,16 +18,16 @@ Ipp16s *malloc_16s( int length ) {
     }
 }
 
-void fetch_data(std::istream in, int siglen, int numint) {
+void fetch_data(std::istream in, int siglen, int numint, struct buffer *buf) {
     int i = 0;
     while( (*in).good() && i < numint ) {
-        boost::unique_lock<boost::mutex> lock(buf.mut);
-        while( buf.data_ready ) {
-            buf.dready.wait(lock);
+        boost::unique_lock<boost::mutex> lock(buf->mut);
+        while( buf->data_ready ) {
+            buf->dready.wait(lock);
         }
 
-        (*in).read( (char *)buf.sig, sizeof(*buf.sig) * siglen );
-        buf.cond.notify_one();
+        (*in).read( (char *)buf->sig, sizeof(*(buf->sig)) * siglen );
+        buf->cond.notify_one();
     }
 }
 
@@ -37,10 +37,11 @@ Ipp16s *computeFFT(boost::program_options::variables_map &var_map, std::istream 
     Ipp8u *buffer;
     IppsFFTSpec_R_16s *FFTSpec;
     int bufsize;
+    struct buffer buf;
 
-    boost::thread th(fetch_data);
 
     int siglen = boost::numeric_cast<int>( pow(2, order) );
+
     result = malloc_16s(siglen);
     ippsSet_16s(0, result, siglen);
     buf.sig = malloc_16s(siglen);
@@ -61,6 +62,8 @@ Ipp16s *computeFFT(boost::program_options::variables_map &var_map, std::istream 
         std::cerr << "Not enough memory\n";
         exit(3);
     }
+
+    boost::thread th(fetch_data, siglen, nint, &buf);
 
     for( int i = 0; i < nint; i++ ) {
 
