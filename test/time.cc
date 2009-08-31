@@ -49,7 +49,7 @@ int main( int argc, char **argv ) {
 
     boost::filesystem::path order_fp( "order.dat" );
     boost::filesystem::ofstream order_f( order_fp );
-    for( int o = 10; o < 27; o++ ) {
+    for( int o = 10; o < 25; o++ ) {
         struct timeval start, end;
         gettimeofday(&start, NULL);
         siglen = boost::numeric_cast<int>( pow(2, o) );
@@ -63,12 +63,13 @@ int main( int argc, char **argv ) {
     }
     order_f.close();
 
+    /*
     boost::filesystem::path orderint_fp( "order_int.dat" );
     boost::filesystem::ofstream orderint_f( orderint_fp );
-    (*in).seekg(0);
-    for( int o = 10; o < 27; o++ ) {
+    for( int o = 10; o < 25; o++ ) {
+        (*in).seekg(0);
         struct timeval start, end;
-        /* Time before the FFT */
+        /* Time before the FFT *//*
         gettimeofday(&start, NULL);
 
         siglen = boost::numeric_cast<int>( pow(2, o) );
@@ -77,7 +78,7 @@ int main( int argc, char **argv ) {
         ippFree(result);
         result = NULL;
 
-        /* Time after the FFT */
+        /* Time after the FFT *//*
         gettimeofday(&end, NULL);
         double e = ((end.tv_sec - start.tv_sec) * 1000) + (end.tv_usec /1000 - start.tv_usec / 1000);
         orderint_f << o << '\t' << e << std::endl;
@@ -86,14 +87,15 @@ int main( int argc, char **argv ) {
 
     boost::filesystem::path int_fp( "integration.dat" );
     boost::filesystem::ofstream int_f( int_fp );
-    (*in).seekg(0);
     siglen = boost::numeric_cast<int>( pow(2, 15) );
-    for( int i = 20; i < 3000; i += 30 ) {
+    for( int i = 20; i < 13000; i += 1000 ) {
+        (*in).seekg(0);
         struct timeval start, end;
         gettimeofday(&start, NULL);
 
         result = computeFFT(var_map, in, hint, 15, i, scaling, pscaling);
         write_result(var_map, result, siglen);
+        std::cerr << "Result[0]: " << std::hex << result[0] << std::endl;
         ippFree(result);
         result = NULL;
 
@@ -103,13 +105,15 @@ int main( int argc, char **argv ) {
     }
     int_f.close();
 
+    /*
     IppStatus s = ippSetNumThreads(1);
     if( s != ippStsNoErr ) {
         std::cerr << "Error thread: " << ippGetStatusString(s) << std::endl;
     }
     boost::filesystem::path nomulti_fp( "nomulti.dat" );
     boost::filesystem::ofstream nomulti_f( nomulti_fp );
-    for( int o = 10; o < 27; o++ ) {
+    for( int o = 10; o < 25; o++ ) {
+        (*in).seekg(0);
         struct timeval start, end;
         gettimeofday(&start, NULL);
 
@@ -131,7 +135,8 @@ int main( int argc, char **argv ) {
     }
     boost::filesystem::path multi5_fp( "multi5.dat" );
     boost::filesystem::ofstream multi5_f( multi5_fp );
-    for( int o = 10; o < 27; o++ ) {
+    for( int o = 10; o < 25; o++ ) {
+        (*in).seekg(0);
         struct timeval start, end;
         gettimeofday(&start, NULL);
 
@@ -145,7 +150,7 @@ int main( int argc, char **argv ) {
         double e = ((end.tv_sec - start.tv_sec) * 1000) + (end.tv_usec /1000 - start.tv_usec / 1000);
         multi5_f << o << '\t' << e << std::endl;
     }
-    multi5_f.close();
+    multi5_f.close();*/
 
     if( in != &std::cin ) {
         delete in;
