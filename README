@@ -1,6 +1,12 @@
 Requirements
 
-This project requires Intel Integrated Performance Primitives and Boost version 1.35.0 or greater
+This project requires Intel Integrated Performance Primitives and Boost version 1.36.0 or greater
+
+Environmente variables
+
+In order to compile and run the programs you need to add to the LD_LIBRARY_PATH environment variable
+the path to the shared library of your Intel IPP installation. Here's an example command to do so:
+export LD_LIBRARY_PATH=/opt/intel/ipp/6.0.2.076/em64t/sharedlib
 
 Compiling
 
@@ -15,5 +21,15 @@ To see a graphical representation of the output, use the extra/plot.py script.
 
 Sample usage
 
-./test/siggen -l 2048 | ./test/fft -o 8 -n 4 -a 1 -p 12 -t 1 -s fft.sig
-python extra/plot.py -i fft.sig -l 256
+./test/siggen -l 2048 | ./test/fft -r 8 -n 4 -a 1 -p 12 -t 1 -o fft.sig
+python extra/plot.py -f fft.sig -l 256
+
+Time test
+
+In the test directory there is a program called time and one called multi. They both test the time taken by each function to compute it's results. To see a graph of the results you can use gnuplot:
+$ gnuplot
+gnuplot> plot "order.dat" smooth sbezier
+gnuplot> plot "order_int.dat" smooth sbezier
+gnuplot> plot "integration.dat" smooth sbezier
+gnuplot> plot "nomulti.dat" smooth sbezier
+gnuplot> plot "multi5.dat" smooth sbezier

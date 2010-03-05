@@ -25,12 +25,13 @@ Ipp16s *malloc_16s( int length ) {
 
 void fetch_data(std::istream *in, int siglen, int numint, struct buffer *buf) {
     int i = 0;
-    while( (*in).good() && i < numint ) {
+    while( i < numint ) {
         boost::unique_lock<boost::mutex> lock(buf->mut);
         while( buf->data_ready ) {
             buf->dready.wait(lock);
         }
 
+        //std::cerr << "Reading: " << sizeof(*(buf->sig)) * siglen << std::endl;
         (*in).read( (char *)buf->sig, sizeof(*(buf->sig)) * siglen );
         buf->data_ready = 1;
         i++;
@@ -95,7 +96,12 @@ void fft(bool ps, int siglen, struct buffer *buf, IppsFFTSpec_R_16s *FFTSpec, in
             vc = NULL;
         }
         buf->rmut.lock();
+        bool print = false;
+        if( buf->result[0] > 0 ) {
+            print = true;
+        }
         status = ippsAdd_16s_I(tmpdst, buf->result, siglen);
+        print = false;
         buf->rmut.unlock();
         if( status != ippStsNoErr ) {
             std::cerr << "IPP Error in Add: " << ippGetStatusString(status) << "\n";

@@ -21,8 +21,8 @@ int main( int argc, char **argv ) {
         ("help", "Print this help message")
         ("fast", "Use fast algorithm instead of accurate one")
         ("scaling,t", po::value<int>(&scaling)->default_value(0), "Scaling value. The output will be multiplied by 2^-scaling")
-        ("input,i", po::value< std::string >(), "Input file where to get the signal")
-        ("save,s", po::value< std::string >(), "File where to save the signal")
+        ("file,f", po::value< std::string >(), "Input file where to get the signal")
+        ("outfile,o", po::value< std::string >(), "File where to save the signal")
         ("power-spectrum,p", po::value<int>(&pscaling), "Convert the complex numbers into the power spectrum with the defined scaling")
         ;
     po::store(po::command_line_parser(argc, argv).options(desc).run(), var_map);
@@ -42,8 +42,8 @@ int main( int argc, char **argv ) {
     }
 
     std::istream *in = &std::cin;
-    if( var_map.count("input") ) {
-        boost::filesystem::path fp( var_map["input"].as< std::string >() );
+    if( var_map.count("file") ) {
+        boost::filesystem::path fp( var_map["file"].as< std::string >() );
         in = new boost::filesystem::ifstream(fp);
     }
 
@@ -63,13 +63,12 @@ int main( int argc, char **argv ) {
     }
     order_f.close();
 
-    /*
     boost::filesystem::path orderint_fp( "order_int.dat" );
     boost::filesystem::ofstream orderint_f( orderint_fp );
     for( int o = 10; o < 25; o++ ) {
         (*in).seekg(0);
         struct timeval start, end;
-        /* Time before the FFT *//*
+        /* Time before the FFT */
         gettimeofday(&start, NULL);
 
         siglen = boost::numeric_cast<int>( pow(2, o) );
@@ -78,7 +77,7 @@ int main( int argc, char **argv ) {
         ippFree(result);
         result = NULL;
 
-        /* Time after the FFT *//*
+        /* Time after the FFT */
         gettimeofday(&end, NULL);
         double e = ((end.tv_sec - start.tv_sec) * 1000) + (end.tv_usec /1000 - start.tv_usec / 1000);
         orderint_f << o << '\t' << e << std::endl;
@@ -95,7 +94,6 @@ int main( int argc, char **argv ) {
 
         result = computeFFT(var_map, in, hint, 15, i, scaling, pscaling);
         write_result(var_map, result, siglen);
-        std::cerr << "Result[0]: " << std::hex << result[0] << std::endl;
         ippFree(result);
         result = NULL;
 
@@ -105,7 +103,6 @@ int main( int argc, char **argv ) {
     }
     int_f.close();
 
-    /*
     IppStatus s = ippSetNumThreads(1);
     if( s != ippStsNoErr ) {
         std::cerr << "Error thread: " << ippGetStatusString(s) << std::endl;
@@ -150,7 +147,7 @@ int main( int argc, char **argv ) {
         double e = ((end.tv_sec - start.tv_sec) * 1000) + (end.tv_usec /1000 - start.tv_usec / 1000);
         multi5_f << o << '\t' << e << std::endl;
     }
-    multi5_f.close();*/
+    multi5_f.close();
 
     if( in != &std::cin ) {
         delete in;

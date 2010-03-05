@@ -24,38 +24,49 @@ int main( int argc, char **argv ) {
         ("magnitude,m", po::value<Ipp16s>(&magn)->default_value(10000), "The maximum magnitude of the signal")
         ("frequency,f", po::value<float>(&rfreq)->default_value(0.2), "Frequency of the signal, relative to sampling frequency. Value between [0.0, 0.5) for reals, [0.0, 1.0) for complexes")
         ("length,l", po::value<int>(&siglen)->default_value(256), "Length of the signal to be generated")
-        ("save,s", po::value< std::string >(), "File where to save the signal")
+        ("output,o", po::value< std::string >(), "File where to save the signal")
         ;
     po::store(po::command_line_parser(argc, argv).options(desc).run(), var_map);
     po::notify(var_map);
 
+    /*
+     * Print help
+     * */
     if( var_map.count("help") ) {
         std::cout << desc << "\n";
         return 0;
     }
 
     ippStaticInit();
+    /*
+     * Choose between fast or accurate algorithm
+     * */
     if( var_map.count("fast") ) {
         hint = ippAlgHintFast;
     } else {
         hint = ippAlgHintAccurate;
     }
+    /*
+     * Allocate space for the signal
+     * */
     signal = ippsMalloc_16s(siglen);
     if( signal == NULL ) {
         std::cerr << "Not enough memory" << std::endl;
         return -1;
     }
+    /*
+     * Generate a tone
+     * */
     status = ippsTone_Direct_16s(signal, siglen, magn, rfreq, &phase, hint);
     if(status != ippStsNoErr) {
         std::cerr << "IPP Error in Tone Direct: " << ippGetStatusString(status) << '\n';
         return -2;
     }
-    std::cerr << "Printing first 10 elements: \n";
-    for(int i = 0; i < 10 && i < siglen; i++) {
-        std::cerr << i << ": " << signal[i] << '\n';
-    }
-    if( var_map.count("save") ) {
-        boost::filesystem::path fp( var_map["save"].as< std::string >() );
+    /*
+     * Output the signal, either to file or to stdout
+     * */
+    if( var_map.count("output") ) {
+        boost::filesystem::path fp( var_map["output"].as< std::string >() );
         boost::filesystem::ofstream file( fp );
         file.write((char *)signal, sizeof(*signal) * siglen);
         file.close();

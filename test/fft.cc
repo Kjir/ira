@@ -27,11 +27,11 @@ int main( int argc, char **argv ) {
     desc.add_options()
         ("help", "Print this help message")
         ("fast", "Use fast algorithm instead of accurate one")
-        ("order,o", po::value<int>(&order)->default_value(8), "Order of the transform. The input and output signal have a 2^order length")
+        ("order,r", po::value<int>(&order)->default_value(8), "Order of the transform. The input and output signal have a 2^order length")
         ("integrate,n", po::value<int>(&nint)->default_value(1), "Number of integrations to be done")
         ("scaling,t", po::value<int>(&scaling)->default_value(0), "Scaling value. The output will be multiplied by 2^-scaling")
-        ("input,i", po::value< std::string >(), "Input file where to get the signal")
-        ("save,s", po::value< std::string >(), "File where to save the signal")
+        ("file,f", po::value< std::string >(), "Input file where to get the signal")
+        ("output,o", po::value< std::string >(), "File where to save the signal")
         ("power-spectrum,p", po::value<int>(&pscaling), "Convert the complex numbers into the power spectrum with the defined scaling")
         ("integration-scaling,a", po::value<int>(&iscaling)->default_value(5), "Scaling to apply during integration")
         ;
@@ -74,16 +74,12 @@ int main( int argc, char **argv ) {
     }
 
     std::istream *in = &std::cin;
-    if( var_map.count("input") ) {
-        boost::filesystem::path fp( var_map["input"].as< std::string >() );
+    if( var_map.count("file") ) {
+        boost::filesystem::path fp( var_map["file"].as< std::string >() );
         in = new boost::filesystem::ifstream(fp);
     }
     for( int i = 0; i < nint; i++ ) {
         (*in).read( (char *)signal, sizeof(*signal) * siglen );
-        std::cerr << "Printing first 10 elements: \n";
-        for(int i = 0; i < 10; i++) {
-            std::cerr << i << ": " << signal[i] << "\n";
-        }
 
         status = ippsFFTFwd_RToPack_16s_Sfs(signal, tmpdst, FFTSpec, scaling, buffer);
         if( status != ippStsNoErr ) {
@@ -138,12 +134,8 @@ int main( int argc, char **argv ) {
     ippsFree( buffer );
     buffer = NULL;
 
-    std::cerr << "Printing first 10 elements after FFT: \n";
-    for(int i = 0; i < 10 && i < siglen; i++) {
-        std::cerr << i << ": " << result[i] << "\n";
-    }
-    if( var_map.count("save") ) {
-        boost::filesystem::path fp( var_map["save"].as< std::string >() );
+    if( var_map.count("output") ) {
+        boost::filesystem::path fp( var_map["output"].as< std::string >() );
         boost::filesystem::ofstream file( fp );
         file.write((char *)result, sizeof(*result) * siglen);
         file.close();
